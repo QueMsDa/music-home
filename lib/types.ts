@@ -10,10 +10,12 @@ export interface Song {
 }
 
 export interface Command {
-  action: "play" | "pause" | "stop" | "resume" | "volume";
+  action: "play" | "pause" | "stop" | "resume" | "volume" | "play_queue";
   songUrl?: string;
   songTitle?: string;
   songArtist?: string;
   volume?: number;
+  queue?: Song[];       // cola completa (para play_queue)
+  queueIndex?: number;  // posición actual en la cola
   timestamp: number;
 }
