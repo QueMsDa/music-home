@@ -35,7 +35,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           album: "Sin álbum",
           url: blob.url,
           contentType: blob.contentType,
-          size: blob.size,
+          size: 0,
           uploadedAt: new Date().toISOString(),
         };
 
