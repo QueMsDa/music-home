@@ -1,0 +1,13 @@
+{
+  "name": "music-home-bridge",
+  "version": "1.0.0",
+  "description": "Bridge local entre Vercel y Google Home via Cast",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "castv2-client": "^1.2.0",
+    "dotenv": "^16.4.5"
+  }
+}
