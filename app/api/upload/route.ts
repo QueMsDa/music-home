@@ -1,5 +1,5 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Song } from "@/lib/types";
 
@@ -10,7 +10,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const json = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => {
+      onBeforeGenerateToken: async () => {
         return {
           allowedContentTypes: [
             "audio/mpeg",
@@ -21,11 +21,10 @@ export async function POST(request: Request): Promise<NextResponse> {
             "audio/mp4",
             "audio/aac",
           ],
-          maximumSizeInBytes: 200 * 1024 * 1024, // 200 MB por canción
-          tokenPayload: pathname,
+          maximumSizeInBytes: 200 * 1024 * 1024,
         };
       },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
+      onUploadCompleted: async ({ blob }) => {
         const rawName = blob.pathname.split("/").pop() ?? "Desconocido";
         const title = rawName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
 
@@ -40,8 +39,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           uploadedAt: new Date().toISOString(),
         };
 
-        const songs = (await kv.get<Song[]>("songs")) ?? [];
-        await kv.set("songs", [...songs, song]);
+        const songs = (await redis.get<Song[]>("songs")) ?? [];
+        await redis.set("songs", [...songs, song]);
       },
     });
 

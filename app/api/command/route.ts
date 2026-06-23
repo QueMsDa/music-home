@@ -1,8 +1,7 @@
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Command } from "@/lib/types";
 
-// GET — el bridge local hace polling cada 2 segundos
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get("key");
@@ -11,11 +10,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const command = await kv.get<Command>("command");
+  const command = await redis.get<Command>("command");
   return NextResponse.json(command ?? null);
 }
 
-// POST — la web app envía un comando
 export async function POST(request: Request) {
   const apiKey = request.headers.get("x-api-key");
   if (apiKey !== process.env.API_SECRET) {
@@ -29,6 +27,6 @@ export async function POST(request: Request) {
     timestamp: Date.now(),
   };
 
-  await kv.set("command", command);
+  await redis.set("command", command);
   return NextResponse.json({ ok: true, timestamp: command.timestamp });
 }

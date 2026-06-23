@@ -1,19 +1,17 @@
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Song, Command } from "@/lib/types";
 
-// GET /api/trigger/wifi?key=SECRET&mode=shuffle
-// Llamado automáticamente cuando el teléfono se conecta al WiFi
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get("key");
-  const mode = searchParams.get("mode") ?? "shuffle"; // shuffle | first | last
+  const mode = searchParams.get("mode") ?? "shuffle";
 
   if (key !== process.env.API_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const songs = (await kv.get<Song[]>("songs")) ?? [];
+  const songs = (await redis.get<Song[]>("songs")) ?? [];
 
   if (songs.length === 0) {
     return NextResponse.json({ ok: false, reason: "No hay canciones en la biblioteca" });
@@ -28,7 +26,6 @@ export async function GET(request: Request) {
     song = songs[0];
   }
 
-  // Guardar el índice de inicio para que el bridge pueda seguir la cola
   const shuffledQueue = mode === "shuffle" ? shuffle([...songs]) : [...songs];
   const startIndex = shuffledQueue.findIndex((s) => s.id === song.id);
 
@@ -42,7 +39,7 @@ export async function GET(request: Request) {
     timestamp: Date.now(),
   };
 
-  await kv.set("command", command);
+  await redis.set("command", command);
 
   return NextResponse.json({
     ok: true,

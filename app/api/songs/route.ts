@@ -1,9 +1,9 @@
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Song } from "@/lib/types";
 
 export async function GET() {
-  const songs = (await kv.get<Song[]>("songs")) ?? [];
+  const songs = (await redis.get<Song[]>("songs")) ?? [];
   return NextResponse.json(songs);
 }
 
@@ -14,11 +14,11 @@ export async function POST(request: Request) {
   }
 
   const song: Song = await request.json();
-  const songs = (await kv.get<Song[]>("songs")) ?? [];
+  const songs = (await redis.get<Song[]>("songs")) ?? [];
 
   const exists = songs.find((s) => s.id === song.id);
   if (!exists) {
-    await kv.set("songs", [...songs, song]);
+    await redis.set("songs", [...songs, song]);
   }
 
   return NextResponse.json({ ok: true });
@@ -31,11 +31,8 @@ export async function DELETE(request: Request) {
   }
 
   const { id } = await request.json();
-  const songs = (await kv.get<Song[]>("songs")) ?? [];
-  await kv.set(
-    "songs",
-    songs.filter((s) => s.id !== id)
-  );
+  const songs = (await redis.get<Song[]>("songs")) ?? [];
+  await redis.set("songs", songs.filter((s) => s.id !== id));
 
   return NextResponse.json({ ok: true });
 }
