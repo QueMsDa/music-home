@@ -18,12 +18,20 @@ export default function Player({ song, queue, onNext, onPrev, castActive }: Prop
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
 
+  // Parar audio del navegador cuando se castea al Google Home
   useEffect(() => {
-    if (!audioRef.current || !song || castActive) return;
+    if (!audioRef.current) return;
+    if (castActive) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      setPlaying(false);
+      return;
+    }
+    if (!song) return;
     audioRef.current.src = song.url;
     audioRef.current.volume = volume;
     audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
-  }, [song]);
+  }, [song, castActive]);
 
   useEffect(() => {
     if (!audioRef.current) return;
