@@ -1,4 +1,4 @@
-import { redis } from "@/lib/redis";
+﻿import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Song } from "@/lib/types";
 
@@ -9,7 +9,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const apiKey = request.headers.get("x-api-key");
-  if (apiKey !== process.env.API_SECRET) {
+  if (apiKey !== process.env.API_SECRET?.trim()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   const apiKey = request.headers.get("x-api-key");
-  if (apiKey !== process.env.API_SECRET) {
+  if (apiKey !== process.env.API_SECRET?.trim()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -36,3 +36,4 @@ export async function DELETE(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
+

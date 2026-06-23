@@ -1,4 +1,4 @@
-import { redis } from "@/lib/redis";
+﻿import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Command } from "@/lib/types";
 
@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get("key");
 
-  if (key !== process.env.API_SECRET) {
+  if (key !== process.env.API_SECRET?.trim()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const apiKey = request.headers.get("x-api-key");
-  if (apiKey !== process.env.API_SECRET) {
+  if (apiKey !== process.env.API_SECRET?.trim()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -30,3 +30,4 @@ export async function POST(request: Request) {
   await redis.set("command", command);
   return NextResponse.json({ ok: true, timestamp: command.timestamp });
 }
+

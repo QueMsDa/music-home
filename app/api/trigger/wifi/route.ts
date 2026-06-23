@@ -1,4 +1,4 @@
-import { redis } from "@/lib/redis";
+﻿import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import type { Song, Command } from "@/lib/types";
 
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const key = searchParams.get("key");
   const mode = searchParams.get("mode") ?? "shuffle";
 
-  if (key !== process.env.API_SECRET) {
+  if (key !== process.env.API_SECRET?.trim()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -56,3 +56,4 @@ function shuffle<T>(arr: T[]): T[] {
   }
   return arr;
 }
+
